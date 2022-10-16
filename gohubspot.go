@@ -54,6 +54,20 @@ type ResponseResource struct {
 	ArchivedAt   *HsTime       `json:"archivedAt,omitempty"`
 }
 
+type CollectionResponsePaging struct {
+	Next *CollectionResponseNextPaging `json:"next"`
+}
+
+type CollectionResponseNextPaging struct {
+	After string `json:"after"`
+	Link  string `json:"link"`
+}
+
+type CollectionResponseResource struct {
+	Results []*ResponseResource       `json:"results"`
+	Paging  *CollectionResponsePaging `json:"paging,omitempty"`
+}
+
 // NewClient returns a new HubSpot API client with APIKey or OAuthConfig.
 // HubSpot officially recommends authentication with OAuth.
 // e.g. hubspot.NewClient(hubspot.SetAPIKey("key"))
