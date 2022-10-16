@@ -10,6 +10,7 @@ const (
 // Reference: https://developers.hubspot.com/docs/api/crm/contacts
 type ContactService interface {
 	Get(contactID string, contact interface{}, option *RequestQueryOption) (*ResponseResource, error)
+	List() ([]*ResponseResource, error)
 	Create(contact interface{}) (*ResponseResource, error)
 	Update(contactID string, contact interface{}) (*ResponseResource, error)
 	AssociateAnotherObj(contactID string, conf *AssociationConfig) (*ResponseResource, error)
@@ -327,6 +328,29 @@ func (s *ContactServiceOp) Get(contactID string, contact interface{}, option *Re
 	}
 	return resource, nil
 }
+
+func (s *ContactServiceOp) List() ([]*ResponseResource, error) {
+	resource := []*ResponseResource{}
+	queryString := "?limit=10"
+
+	for {
+		page := &CollectionResponseResource{}
+		err := s.client.Get(s.contactPath+queryString, page, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		resource = append(resource, page.Results...)
+
+		if page.Paging != nil {
+			queryString = "?limit=10&after=" + page.Paging.Next.After
+		} else {
+			break
+		}
+	}
+	return resource, nil
+}
+
 
 // Create creates a new contact.
 // In order to bind the created content, a structure must be specified as an argument.
