@@ -10,7 +10,7 @@ const (
 // Reference: https://developers.hubspot.com/docs/api/crm/contacts
 type ContactService interface {
 	Get(contactID string, contact interface{}, option *RequestQueryOption) (*ResponseResource, error)
-	List() ([]*ResponseResource, error)
+	List(option *BulkRequestQueryOption) ([]*ResponseResource, error)
 	Create(contact interface{}) (*ResponseResource, error)
 	Update(contactID string, contact interface{}) (*ResponseResource, error)
 	AssociateAnotherObj(contactID string, conf *AssociationConfig) (*ResponseResource, error)
@@ -329,13 +329,13 @@ func (s *ContactServiceOp) Get(contactID string, contact interface{}, option *Re
 	return resource, nil
 }
 
-func (s *ContactServiceOp) List() ([]*ResponseResource, error) {
+func (s *ContactServiceOp) List(option *BulkRequestQueryOption) ([]*ResponseResource, error) {
 	resource := []*ResponseResource{}
-	queryString := "?limit=10"
+	option = option.setupProperties(defaultContactFields).setPageOptions(10, "")
 
 	for {
 		page := &CollectionResponseResource{}
-		err := s.client.Get(s.contactPath+queryString, page, nil)
+		err := s.client.Get(s.contactPath, page, option)
 		if err != nil {
 			return nil, err
 		}
@@ -343,7 +343,7 @@ func (s *ContactServiceOp) List() ([]*ResponseResource, error) {
 		resource = append(resource, page.Results...)
 
 		if page.Paging != nil {
-			queryString = "?limit=10&after=" + page.Paging.Next.After
+			option = option.setPageOptions(10, page.Paging.Next.After)
 		} else {
 			break
 		}

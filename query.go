@@ -27,7 +27,8 @@ func (o *RequestQueryOption) setupProperties(defaultFields []string) *RequestQue
 
 type BulkRequestQueryOption struct {
 	// Properties sets a comma separated list of the properties to be returned in the response.
-	Properties []string `url:"properties,comma,omitempty"`
+	Properties       []string `url:"properties,comma,omitempty"`
+	CustomProperties []string `url:"-"`
 	// Limit is the maximum number of results to display per page.
 	Limit int `url:"limit,comma,omitempty"`
 	// After is the paging cursor token of the last successfully read resource will be returned as the paging.next.after.
@@ -40,4 +41,23 @@ type BulkRequestQueryOption struct {
 	// Use a negative value to sort in descending order.
 	// Available only in API v1.
 	OrderBy string `url:"orderBy,omitempty"`
+}
+
+func (o *BulkRequestQueryOption) setupProperties(defaultFields []string) *BulkRequestQueryOption {
+	opts := BulkRequestQueryOption{}
+	if o != nil {
+		opts = *o
+	}
+	opts.Properties = append(defaultFields, opts.CustomProperties...)
+	return &opts
+}
+
+func (o *BulkRequestQueryOption) setPageOptions(limit int, after string) *BulkRequestQueryOption {
+	opts := BulkRequestQueryOption{}
+	if o != nil {
+		opts = *o
+	}
+	opts.Limit = limit
+	opts.After = after
+	return &opts
 }
