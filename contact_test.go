@@ -605,18 +605,11 @@ func TestContactServiceOp_Get(t *testing.T) {
 }
 
 func TestContactServiceOp_List(t *testing.T) {
-	// type CustomFields struct {
-	// 	hubspot.Contact
-	// 	CustomName string          `json:"custom_name,omitempty"`
-	// 	CustomDate *hubspot.HsTime `json:"custom_date,omitempty"`
-	// }
-
 	type fields struct {
 		contactPath string
 		client      *hubspot.Client
 	}
 	type args struct {
-		// contactID string
 		contact   interface{}
 		option    *hubspot.BulkRequestQueryOption
 	}
