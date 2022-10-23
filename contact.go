@@ -10,7 +10,7 @@ const (
 // Reference: https://developers.hubspot.com/docs/api/crm/contacts
 type ContactService interface {
 	Get(contactID string, contact interface{}, option *RequestQueryOption) (*ResponseResource, error)
-	List(option *BulkRequestQueryOption) ([]*ResponseResource, error)
+	List(contact interface{}, option *BulkRequestQueryOption) ([]*ResponseResource, error)
 	Create(contact interface{}) (*ResponseResource, error)
 	Update(contactID string, contact interface{}) (*ResponseResource, error)
 	AssociateAnotherObj(contactID string, conf *AssociationConfig) (*ResponseResource, error)
@@ -329,12 +329,15 @@ func (s *ContactServiceOp) Get(contactID string, contact interface{}, option *Re
 	return resource, nil
 }
 
-func (s *ContactServiceOp) List(option *BulkRequestQueryOption) ([]*ResponseResource, error) {
+func (s *ContactServiceOp) List(contact interface{}, option *BulkRequestQueryOption) ([]*ResponseResource, error) {
 	resource := []*ResponseResource{}
 	option = option.setupProperties(defaultContactFields).setPageOptions(10, "")
 
 	for {
 		page := &CollectionResponseResource{}
+		for i := 0; i < 10; i++ {
+			page.Results = append(page.Results, &ResponseResource{Properties: contact})
+		}
 		err := s.client.Get(s.contactPath, page, option)
 		if err != nil {
 			return nil, err
