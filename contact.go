@@ -331,22 +331,27 @@ func (s *ContactServiceOp) Get(contactID string, contact interface{}, option *Re
 
 func (s *ContactServiceOp) List(contact interface{}, option *BulkRequestQueryOption) ([]*ResponseResource, error) {
 	resource := []*ResponseResource{}
-	option = option.setupProperties(defaultContactFields).setPageOptions(10, "")
+
+	pageSize := 50
+	if option != nil {
+		pageSize = option.Limit
+	}
+	option = option.setupProperties(defaultContactFields).setPageOptions(pageSize, "")
 
 	for {
 		page := &CollectionResponseResource{}
-		for i := 0; i < 10; i++ {
+		for i := 0; i < pageSize; i++ {
 			page.Results = append(page.Results, &ResponseResource{Properties: contact})
 		}
-		err := s.client.Get(s.contactPath, page, option)
-		if err != nil {
+
+		if err := s.client.Get(s.contactPath, page, option); err != nil {
 			return nil, err
 		}
 
 		resource = append(resource, page.Results...)
 
 		if page.Paging != nil {
-			option = option.setPageOptions(10, page.Paging.Next.After)
+			option = option.setPageOptions(pageSize, page.Paging.Next.After)
 		} else {
 			break
 		}

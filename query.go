@@ -27,7 +27,8 @@ func (o *RequestQueryOption) setupProperties(defaultFields []string) *RequestQue
 
 type BulkRequestQueryOption struct {
 	// Properties sets a comma separated list of the properties to be returned in the response.
-	Properties       []string `url:"properties,comma,omitempty"`
+	Properties []string `url:"properties,comma,omitempty"`
+	// CustomProperties are combined with default properties when a list request is send to hubspot.
 	CustomProperties []string `url:"-"`
 	// Limit is the maximum number of results to display per page.
 	Limit int `url:"limit,comma,omitempty"`
